@@ -36,7 +36,7 @@ Where each component addresses a distinct failure mode:
 | **Gradient diversity** $U_{div}$ | Probes cluster in one region | Spatial gradient magnitude of prior $\times$ distance-from-observed decay |
 | **Tail-risk focus** $U_{tail}$ | Worst-case pixels missed | Top-$\alpha$ exceedance concentration ($\alpha = 0.18$) |
 | **Learned blend** $U_{learn}$ | Cheap prior is misleading | Learned-loss proxy activated when prior confidence is low |
-| **Sensor gain** $G(s)$ | Wrong sensor for the job | $\text{info\_gain} \times \text{radius} / \text{noise}$ |
+| **Sensor gain** $G(s)$ | Wrong sensor for the job | `info_gain × radius / noise` — sensor-specific quality |
 | **Cost denominator** $c(s) + r(x)$ | Ignoring inspection economics | Auto-switches to cheaper sensors when they suffice |
 
 The **Adaptive CAAMI** variant — the current state-of-the-art policy — dynamically adjusts the blending weights ($\alpha, \beta, \gamma, \delta$), route-awareness threshold, and route cost scale based on runtime conditions: prior confidence quantile, trusted-sensor cost ratios, and sensor reliability under noise and intermittent failure.
