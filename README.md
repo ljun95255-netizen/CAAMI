@@ -27,43 +27,9 @@ Traditional active learning selects locations that maximize *uncertainty* or *in
 
 ### Architecture
 
-```
-┌─────────────────────────────────────────────────┐
-│                  CAAMI POLICY                     │
-│                                                   │
-│  ┌──────────┐   ┌──────────┐   ┌──────────────┐ │
-│  │ Utility  │   │ Gradient │   │  Tail-Risk   │ │
-│  │  Score   │   │Diversity │   │ Acquisition  │ │
-│  │ (miss↓)  │ + │(coverage)│ + │  (worst-case)│ │
-│  └──────────┘   └──────────┘   └──────────────┘ │
-│         │              │               │          │
-│         └──────────────┼───────────────┘          │
-│                        ▼                          │
-│              ┌─────────────────┐                  │
-│              │  Cost-Normalize │                  │
-│              │  (per sensor)   │                  │
-│              └────────┬────────┘                  │
-│                       ▼                           │
-│         ┌─────────────────────────┐               │
-│         │  Select max score       │               │
-│         │  (sensor, location)     │               │
-│         └───────────┬─────────────┘               │
-│                     ▼                             │
-│         ┌─────────────────────────┐               │
-│         │  Acquire observation    │               │
-│         │  Update posterior (GP)  │               │
-│         └───────────┬─────────────┘               │
-│                     │                             │
-│               budget remaining? ──Yes──► loop     │
-│                     │                             │
-│                     No                            │
-│                     ▼                             │
-│         ┌─────────────────────────┐               │
-│         │  Final risk map         │               │
-│         │  Metrics: FNR, ECE, R-AUC│              │
-│         └─────────────────────────┘               │
-└─────────────────────────────────────────────────┘
-```
+![CAAMI Policy Architecture](docs/images/caami_architecture.svg)
+
+*Three-layer active sensing pipeline: (1) INPUT — prior belief & case state, (2) CAAMI POLICY — multi-component cost-normalized acquisition score with sensor selection, (3) EXECUTION — probe, update GP posterior, loop until budget exhausted. See [caami_algorithm.py](src/caami_algorithm.py) for implementation details.*
 
 ### Benchmark Results (40-case synthetic)
 
