@@ -24,18 +24,20 @@ CAAMI formalises this as **active inference over a hidden spatial risk field** u
 
 The CAAMI acquisition score is a **cost-normalised multi-component utility function**:
 
-$$\text{Score}(\text{loc}, s) = \frac{[\alpha \cdot U_{\text{miss}} + \beta \cdot U_{\text{diversity}} + \gamma \cdot U_{\text{tail}} + \delta \cdot U_{\text{learned}}] \cdot \text{Gain}(s)}{\max(\text{cost}(s) + \text{route\_cost}, \varepsilon)}$$
+$$
+\text{Score}(x, s) = \frac{[\alpha \cdot U_{miss}(x) + \beta \cdot U_{div}(x) + \gamma \cdot U_{tail}(x) + \delta \cdot U_{learn}(x)] \cdot G(s)}{\max(c(s) + r(x), \varepsilon)}
+$$
 
 Where each component addresses a distinct failure mode:
 
 | Component | Failure Mode Addressed | Mechanism |
 |-----------|----------------------|-----------|
-| **Miss-risk utility** $U_{\text{miss}}$ | High-risk pixels ignored | Posterior probability of exceedance × severity × corruption boost |
-| **Gradient diversity** $U_{\text{diversity}}$ | Probes cluster in one region | Spatial gradient magnitude of prior × distance-from-observed decay |
-| **Tail-risk focus** $U_{\text{tail}}$ | Worst-case pixels missed | Top-$\alpha$ exceedance concentration ($\alpha = 0.18$) |
-| **Learned blend** $U_{\text{learned}}$ | Cheap prior is misleading | Learned-loss proxy activated when prior confidence is low |
-| **Sensor gain** $\text{Gain}(s)$ | Wrong sensor for the job | $\text{info\_gain} \times \text{radius} / \text{noise}$ — sensor-specific quality |
-| **Cost denominator** | Ignoring inspection economics | Auto-switches to cheaper sensors when they suffice |
+| **Miss-risk utility** $U_{miss}$ | High-risk pixels ignored | Posterior probability of exceedance $\times$ severity $\times$ corruption boost |
+| **Gradient diversity** $U_{div}$ | Probes cluster in one region | Spatial gradient magnitude of prior $\times$ distance-from-observed decay |
+| **Tail-risk focus** $U_{tail}$ | Worst-case pixels missed | Top-$\alpha$ exceedance concentration ($\alpha = 0.18$) |
+| **Learned blend** $U_{learn}$ | Cheap prior is misleading | Learned-loss proxy activated when prior confidence is low |
+| **Sensor gain** $G(s)$ | Wrong sensor for the job | $\text{info\_gain} \times \text{radius} / \text{noise}$ |
+| **Cost denominator** $c(s) + r(x)$ | Ignoring inspection economics | Auto-switches to cheaper sensors when they suffice |
 
 The **Adaptive CAAMI** variant — the current state-of-the-art policy — dynamically adjusts the blending weights ($\alpha, \beta, \gamma, \delta$), route-awareness threshold, and route cost scale based on runtime conditions: prior confidence quantile, trusted-sensor cost ratios, and sensor reliability under noise and intermittent failure.
 
@@ -161,7 +163,7 @@ This revision was intellectually critical: it shifted the claim from the implaus
 
 The immediate goal is to **balance all metrics under physically realistic conditions** — achieving true SOTA where no single metric is sacrificed. Three interconnected directions:
 
-1. **Learned Terminal Value Function**. The theoretically principled extension of V52: instead of a static one-step critic, learn $V(q_t, B_{\text{remaining}})$ — the expected terminal worst-region FNR given any intermediate posterior and remaining budget. This is trained on full replay trajectories and added to the CAAMI score as a long-horizon correction term $\lambda \cdot \Delta V(a)$. Unlike V52's frozen critic, the value function is continuously refined as more replay data is collected, giving it the adaptivity that V52 lacked.
+1. **Learned Terminal Value Function**. The theoretically principled extension of V52: instead of a static one-step critic, learn $V(q_t, B_{rem})$ — the expected terminal worst-region FNR given any intermediate posterior and remaining budget. This is trained on full replay trajectories and added to the CAAMI score as a long-horizon correction term $\lambda \cdot \Delta V(a)$. Unlike V52's frozen critic, the value function is continuously refined as more replay data is collected, giving it the adaptivity that V52 lacked.
 
 2. **Physics-Guided Stress Testing**. The current procedural surface generator produces statistically realistic corrosion patterns. The next step is to stress-test CAAMI under **physically grounded distribution shifts**: Cahn-Hilliard phase-field corrosion evolution, computational fluid dynamics deposition models, and finite-element thermal response. These are not replacements for the benchmark — they are adversarial stress tests to verify that CAAMI's performance does not collapse under realistic domain shift.
 
