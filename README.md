@@ -6,8 +6,6 @@
 
 ---
 
-## English
-
 ### 1. Research Problem
 
 Industrial surface inspection presents a fundamental tension: **comprehensive sensing is expensive, but incomplete sensing is dangerous.** A wall-climbing robot inspecting an offshore wind turbine tower faces a surface with unknown corrosion risk, carries multiple sensors of varying cost and precision (thermal cameras, DFT probes, ultrasonic thickness gauges), and operates under a fixed time-and-energy budget. The robot must answer, at each step:
