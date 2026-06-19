@@ -221,8 +221,8 @@ V52:     Learned critic → BEATS CAAMI on FNR + R-AUC → discovers Pareto fron
 V53-V56: Component features / 1-step sim / heuristic / two-stage → ALL FAIL
     ↓ root cause: one-step greedy cannot solve multi-step terminal closure
 Current: caami_adaptive is SOTA; terminal closure is the open frontier
-    ↓ future direction:
-M3 paper: Learned Terminal Value Function V(q, B_remaining) — 2027 Q1-Q2
+    ↓ continuing research direction:
+Learned Terminal Value Function V(q, B_remaining) — next phase of this investigation
 ```
 
 ### The Hard Lesson

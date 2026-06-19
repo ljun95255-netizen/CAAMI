@@ -114,7 +114,9 @@ All four failures share a common root: **the one-step greedy paradigm cannot be 
 | **Public dataset augmentation** | Find real NDT (ultrasonic + vision) datasets; build semi-synthetic bridge; keep B2 as diagnostic |
 | **Simulator sensitivity sweep** | Systematically sweep noise (0.5×–3×), probe radius (1–8 px), failure rate (0–30%), budget (8–64), prior quality (oracle→random) |
 
-### P2: The Terminal Closure Solution (M3 Paper, 2027 Q1–Q2)
+### P2: Continuing Research Directions (Next Phase)
+
+These directions extend the current investigation — they are not separate papers but the natural deepening of this work toward the unified goal of balancing all metrics under physically realistic conditions.
 
 The theoretically correct solution is a **Learned Terminal Value Function**:
 
@@ -133,7 +135,7 @@ $$V(q_t, B_{remaining}) = \mathbb{E}[\text{terminal W-FNR} \mid \text{posterior 
 - The value function is learned from data, not hand-designed
 - Extends naturally to Monte Carlo Tree Search for the final steps
 
-**Why not now**: Requires a complete training pipeline (data collection, feature engineering, model selection, calibration) — 6–8 weeks of focused work. This is the core innovation of the follow-up paper, deliberately reserved for 2027.
+**Why this is the right next step**: requires a complete training pipeline (data collection, feature engineering, model selection, calibration) — 6–8 weeks of focused work. This direction directly extends the V52 insight (learned surrogates work) to the multi-step horizon that V52 lacked.
 
 ---
 
@@ -148,4 +150,4 @@ $$V(q_t, B_{remaining}) = \mathbb{E}[\text{terminal W-FNR} \mid \text{posterior 
 | One-step learned surrogate | ✅ V52 proved viable | Ridge critic beat Adaptive on 3/5 metrics |
 | **Terminal worst-region closure** | ❌ **Open** | Requires learned terminal value function |
 
-**The V52 critic proved that learning from replay data can beat hand-designed heuristics.** The next step — extending this from one-step to multi-step via a learned terminal value function — is the natural progression and the core innovation reserved for the follow-up paper.
+**The V52 critic proved that learning from replay data can beat hand-designed heuristics.** The next step — extending this from one-step to multi-step via a learned terminal value function — is the natural progression of this investigation.
