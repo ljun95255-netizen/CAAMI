@@ -1,0 +1,53 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data files (withheld)
+*.npz
+*.h5
+*.pth
+*.pt
+*.pkl
+*.joblib
+data/
+datasets/
+
+# Experiment results (withheld — summary only)
+experiments/results/
+experiments/results_smoke/
+
+# Paper (withheld)
+paper/
+AuthorKit27/
+
+# Large archives
+*.zip
+*.tar.gz
+
+# Logs
+*.log
+
+# Environment
+.env
