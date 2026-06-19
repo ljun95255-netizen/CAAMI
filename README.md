@@ -1,7 +1,5 @@
 # CAAMI: Cost-Aware Active Multi-Modal Inspection
 
-[English](#english) | [中文](#chinese)
-
 > **How should an agent decide *which* sensor to deploy *where*, when every probe costs money and every missed defect could be catastrophic?**
 >
 > *A principled investigation of cost-normalised active sensing under sparse high-confidence supervision — part of the Rustbuster/Rustora research programme on safe foundation model interfaces for physical robots.*
@@ -210,47 +208,6 @@ These directions are not separate papers. They are the natural deepening of the 
 ### 9. License
 
 Apache License 2.0 — see [LICENSE](LICENSE). Commercial use is permitted under the terms of the license; patent rights are explicitly granted.
-
----
-
-## 中文
-
-### 研究问题
-
-工业表面检测中存在一个根本性张力：**全面感知代价高昂，但不全面感知可能致命。** 一台在海上风电塔筒表面爬行的检测机器人面对未知的腐蚀风险，携带多种成本和精度各异的传感器，在固定的时间和能量预算下运行。机器人必须在每一步回答：**下一步用哪个传感器探测哪个位置，才能最小化漏检关键缺陷的概率？**
-
-这**不是**标准的主动学习问题。标准主动学习最小化预测误差——每个错误同等重要。在安全关键的检测中，对高风险区域的漏检（漏掉一条裂纹）远比误报（不必要的维修）严重。优化目标必须是**风险加权**的：最小化单位成本的预期漏检风险。
-
-CAAMI 将其形式化为在 OSSE 协议下的**隐空间风险场的主动推断**：策略只能看到公共后验信念；评估者持有隐藏的真实值。这种干净的分离迫使每一个论断都可以被实证审计。
-
-### 核心贡献
-
-CAAMI 的采集函数是一个**成本归一化的多分量效用函数**（公式见英文部分），每个分量应对一种不同的失效模式：漏检风险效用、梯度多样性、尾部风险聚焦、学习混合、传感器增益、成本分母。
-
-**自适应 CAAMI** 变体根据运行时条件动态调整混合权重：先验置信度分位数、可信传感器成本比率、噪声和间歇故障下的传感器可靠性。
-
-### 基准测试结果
-
-40 个合成案例。自适应 CAAMI FNR ≈ 0.001（接近 Oracle 的 0.000），在与所有基线相同的预算下实现。
-
-### 版本演进（V1 → V56）
-
-四个阶段，56 个版本，每个版本都是对前一个版本局限的回应：
-
-1. **V1–V45**：核心框架——合成基准、多分量效用、成本归一化
-2. **V46–V51**：SOTA 推进——多种子验证、VOI 评分、校准修复
-3. **V52** ⭐：**Pareto 前沿发现**——学习的 ridge 回归 critic（近似贝叶斯优化）在 3/5 指标上超越了自适应 CAAMI，同时揭示了校准与漏检风险的不可兼得。**关键不对称性**：自适应 CAAMI 动态调整权重，V52 使用冻结的 critic——这是自适应 CAAMI 保持更好 W-FNR 的潜在原因
-4. **V53–V56**：终端闭合尝试——全部失败，根因是单步贪心范式的视野限制
-
-**指标体系演进**：从"全指标 rank-1"修正为"风险约束最优效果"——这是一个关键的智识转向。
-
-### 持续推进方向
-
-目标是在物理真实条件下实现**各指标调平**——达成真正的 SOTA：
-
-1. **学习终端价值函数**：V52 的原则性延伸，用完整 replay 轨迹训练 V(q, B)，获得 V52 所缺乏的适应性
-2. **物理导引应力测试**：Cahn-Hilliard 相场、CFD 沉积、FEM 热响应——作为对抗性应力测试
-3. **环内校准**：在校准-漏检风险前沿内实现采集过程中的校准
 
 ---
 
