@@ -206,7 +206,3 @@ These directions are not separate papers. They are the natural deepening of the 
 ### 9. License
 
 Apache License 2.0 — see [LICENSE](LICENSE). Commercial use is permitted under the terms of the license; patent rights are explicitly granted.
-
----
-
-*CAAMI is part of the broader Rustbuster/Rustora research programme on safe foundation model interfaces for physical robots. Lead researcher: Feifan Yu.*
