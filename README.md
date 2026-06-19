@@ -29,7 +29,7 @@ Traditional active learning selects locations that maximize *uncertainty* or *in
 
 ![CAAMI Policy Architecture](docs/images/caami_architecture.svg)
 
-*Three-layer active sensing pipeline: (1) INPUT — prior belief & case state, (2) CAAMI POLICY — multi-component cost-normalized acquisition score with sensor selection, (3) EXECUTION — probe, update GP posterior, loop until budget exhausted. See [caami_algorithm.py](src/caami_algorithm.py) for implementation details.*
+*Active sensing loop: compute multi-component utility → cost-normalize per sensor → select best (sensor, location) → acquire observation → update GP posterior → repeat until budget exhausted. See [caami_algorithm.py](src/caami_algorithm.py) for implementation details.*
 
 ### Benchmark Results (40-case synthetic)
 
