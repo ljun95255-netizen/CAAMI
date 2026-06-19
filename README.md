@@ -163,7 +163,36 @@ The immediate goal is to **balance all metrics under physically realistic condit
 
 2. **Physics-Guided Stress Testing**. The current procedural surface generator produces statistically realistic corrosion patterns. The next step is to stress-test CAAMI under **physically grounded distribution shifts**: Cahn-Hilliard phase-field corrosion evolution, computational fluid dynamics deposition models, and finite-element thermal response. These are not replacements for the benchmark — they are adversarial stress tests to verify that CAAMI's performance does not collapse under realistic domain shift.
 
+   This direction is informed by **CorroMamba** [ECCV 2026 #13976], a concurrent physics-informed latent state space framework for spatiotemporal corrosion forecasting. CorroMamba demonstrated that **soft-binding physics constraints** (a learnable λ balancing data fidelity and physical adherence) enables zero-shot Sim2Real generalization: models trained purely on synthetic reaction-diffusion sequences transfer to real-world industrial corrosion without fine-tuning. However, its ECCV reviews (3 reviewers, decision: reject) surfaced several **design cautions**. We audit each against CAAMI's current state — some lessons have already been incorporated; others expose CAAMI's own unresolved weaknesses.
+
+   | # | Review Insight (CorroMamba) | CAAMI Design Implication | CAAMI Status |
+   |---|---------------------------|--------------------------|:--:|
+   | ① | **Parameter transparency** (aKMW): CorroMamba claimed ~45M params but excluded the 1.1B-parameter frozen ViT-g/14 encoder — called "highly misleading." | Any efficiency claim must transparently report **all** components counted — prior models, learned surrogates, frozen backbones. | 🔮 |
+   | ② | **Ablation capacity confounding** (aKMW): Replacing the physics prior with a vanilla residual connection reduces parameter count. Is the degradation from missing physics or reduced capacity? | Ablations must **control for parameter capacity**: when removing a component, add equivalent-capacity dummy parameters so the comparison isolates the component, not the capacity. | ⚠️ |
+   | ③ | **Epistemic vs. aleatoric uncertainty** (aKMW): CorroMamba's uncertainty decoder captured only aleatoric (image ambiguity), while Sim2Real domain shift is fundamentally epistemic (OOD). | Calibration must **explicitly decompose** into aleatoric (sensor noise, image ambiguity) and epistemic (no prior coverage, OSSE cases far from training). | ⚠️ |
+   | ④ | **Synthetic data fidelity** (oe5n): How domain knowledge informs synthetic generation — if conditions don't match real-world, the model faces OOD inputs. | Document **exactly what domain knowledge** goes into the surface generator (corrosion morphologies, material parameters, defect spatial statistics) and how it bounds the Sim2Real gap. | ⚠️ |
+   | ⑤ | **Physical necessity justification** (hLin): The reaction-diffusion PDE is not computationally expensive to solve — why integrate neural operators? | Physics-guided stress testing must justify **structural plausibility** over purely statistical stress tests. A Cahn-Hilliard-evolved corrosion patch has realistic spatial correlation that statistical perturbation lacks — verifying CAAMI isn't exploiting shortcuts. | 🔮 |
+   | ⑥ | **Baseline fairness** (aKMW): Forcing all baselines to use DINOv2 features disrupts their native inductive biases. | Baselines must be evaluated **in their native configuration** in addition to any controlled-ablation setup. | ✅ |
+   | ⑦ | **Metric traceability** (aKMW): PCS formula depends on D and f, which are well-defined for synthetic data but ambiguous for real-world benchmarks. | Physics fidelity metrics must have **traceable definitions** for both synthetic and real-world settings. If ground-truth physical parameters are unavailable in real data, restrict metric scope to synthetic test cases. | ✅ |
+
+   **Status key**: ✅ Already addressed &nbsp;&nbsp; ⚠️ Still an open problem &nbsp;&nbsp; 🔮 Future precaution (not a current issue, but must be handled correctly)
+
+   **Where CAAMI has already learned (✅)**:
+   - **Baseline fairness (⑥)**: The OSSE protocol is CAAMI's strongest design choice here. Every baseline runs under the same hidden-truth held by the evaluator, using its own native acquisition logic, sensors, and encoders. No method is forced into someone else's feature space. This directly preempts the CorroMamba baseline criticism.
+   - **Metric traceability (⑦)**: CAAMI's current metrics are standard and well-defined — FNR (false negative rate), F1, ECE, Risk AUC, W-FNR. No custom physics metric with ambiguous parameters exists yet (PCS/TJS are CorroMamba-specific, not adopted by CAAMI). This keeps the evaluation auditable.
+
+   **Where CAAMI still has the same problem (⚠️)**:
+   - **Ablation capacity (②)**: This is a genuine methodological gap. The V52 experiment compares "Adaptive CAAMI" (hand-designed score with dynamic blending weights) against "V52 uncalibrated" (ridge regression critic). The two have **different parameter capacities, different inductive biases, and different input features** — capacity is not controlled. The same applies to V55 (replacing CAAMI score with pure closure-debt heuristic — radically different complexity). To date, no CAAMI ablation experiment controls for parameter capacity or model class. This must be fixed before submission.
+   - **Aleatoric vs. epistemic (③)**: V50's post-hoc calibration (temperature + Platt scaling) addresses calibration *quality* (ECE) but does not decompose it. The ECE column in the benchmark table reports a single scalar — a reviewer cannot tell whether miscalibration comes from sensor noise (aleatoric, acceptable) or distribution shift (epistemic, concerning). The README acknowledges this gap in the In-Loop Calibration direction, but the current evaluation framework does not reflect the decomposition.
+   - **Synthetic data fidelity (④)**: The surface generator is described only as "procedural" and "statistically realistic." The complete simulator (5,241 lines) is withheld as unpublished IP. A reviewer — even with the code — has **no documented basis** to judge whether the synthetic surfaces are representative of real-world corrosion. This is structurally the same gap CorroMamba was criticized for: the synthetic data's relationship to real-world physics is asserted, not demonstrated. At minimum, CAAMI must document: (a) what physical/statistical principles govern the generator, (b) what parameter ranges are used, (c) how these ranges map to real industrial conditions.
+
+   **Future precautions (🔮)**:
+   - **Parameter transparency (①)**: CAAMI currently makes no efficiency or parameter-count claims, so this is not an active problem. But if CAAMI ever reports inference speed, model size, or computational cost, it must count **every component** — GP prior model, learned surrogate, post-hoc calibrator — or explicitly state what is excluded and why.
+   - **Physical necessity (⑤)**: CAAMI does not claim physics integration as a current capability (physics-guided stress testing is a future direction). The caution is to avoid CorroMamba's mistake: when physics testing is added, justify *why physics* rather than just *that physics* — the value is in structural plausibility, not in solving PDEs per se.
+
 3. **In-Loop Calibration**. V50 proved that post-hoc calibration works (ECE 0.301 → 0.093). The remaining challenge is to achieve comparable calibration *during* acquisition — so the posterior itself is well-calibrated at every step — without triggering the calibration-miss-risk tradeoff that V52 exposed. This requires a calibration-aware acquisition term that operates in the same value space as the CAAMI utility, not a separate post-processing step.
+
+   The CorroMamba review insight on **aleatoric vs. epistemic uncertainty** (aKMW) applies here with full force. CAAMI's calibration challenge can be decomposed: (a) **aleatoric calibration** — ensuring the posterior reflects genuine sensor noise and image ambiguity (where V50's Platt scaling already helps); (b) **epistemic calibration** — ensuring the posterior is honest about regions with no prior coverage, novel surface morphologies, or OSSE cases far from the training distribution. Post-hoc temperature scaling addresses (a) but cannot fix (b) — only in-loop mechanisms that detect distribution shift during acquisition can. This decomposition provides a sharper research target: **in-loop epistemic calibration** is the bottleneck, not generic calibration quality.
 
 These directions are not separate papers. They are the natural deepening of the current investigation — each addresses a specific limitation identified through systematic empirical testing, and together they aim at the unified goal: **a single policy that simultaneously satisfies safety constraints (FNR, W-FNR), achieves high quality (F1, Risk AUC), and maintains calibration (ECE) under realistic physical conditions.**
 
@@ -198,7 +227,10 @@ These directions are not separate papers. They are the natural deepening of the 
   author={Yu, Feifan},
   booktitle={Under revision},
   year={2026},
-  note={Previously submitted to ECCV 2026 (rejected; reviewer feedback integrated).
+  note={Previously submitted to ECCV 2026 (rejected; 3-reviewer feedback integrated
+        into research design — see Section 6.2 for design cautions).
+        Related concurrent work: CorroMamba (ECCV 2026 #13976, also rejected)
+        informed the physics-guided stress testing direction.
         Part of the Rustbuster/Rustora research programme.}
 }
 ```
